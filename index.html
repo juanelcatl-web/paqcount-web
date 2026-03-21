@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A0A14" />
+  <title>PaqCount</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- PANTALLA LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-box">
+      <div class="logo">📦</div>
+      <h1>PaqCount</h1>
+      <p class="tagline">Modo Depósito Inteligente</p>
+      <button id="btn-google-login" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" />
+        Continuar con Google
+      </button>
+    </div>
+  </div>
+
+  <!-- PANTALLA SCANNER -->
+  <div id="screen-scanner" class="screen">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="app-name">PaqCount</span>
+        <span id="badge-online" class="badge badge-online">● Online</span>
+      </div>
+      <div class="topbar-right">
+        <span id="counter-hoy" class="counter">0 hoy</span>
+        <button id="btn-menu" class="btn-icon">⋮</button>
+      </div>
+    </div>
+
+    <!-- BANNER OFFLINE -->
+    <div id="banner-offline" class="banner-offline hidden">
+      ☁ Sin conexión · Los escaneos se guardan localmente
+    </div>
+
+    <!-- TOGGLE ENTRADA / SALIDA -->
+    <div class="modo-toggle">
+      <button id="btn-entrada" class="modo-btn modo-active">📥 Entrada</button>
+      <button id="btn-salida" class="modo-btn">📤 Salida</button>
+    </div>
+
+    <!-- PANEL RESUMEN -->
+    <div class="resumen-bar">
+      <div class="resumen-item">
+        <span class="resumen-num" id="res-entradas">0</span>
+        <span class="resumen-label">Entradas</span>
+      </div>
+      <div class="resumen-divider"></div>
+      <div class="resumen-item">
+        <span class="resumen-num" id="res-salidas">0</span>
+        <span class="resumen-label">Salidas</span>
+      </div>
+      <div class="resumen-divider"></div>
+      <div class="resumen-item alerta" id="res-faltantes-wrap">
+        <span class="resumen-num" id="res-faltantes">0</span>
+        <span class="resumen-label">Faltantes</span>
+      </div>
+      <div class="resumen-divider"></div>
+      <div class="resumen-item alerta-verde" id="res-sobrantes-wrap">
+        <span class="resumen-num" id="res-sobrantes">0</span>
+        <span class="resumen-label">Sobrantes</span>
+      </div>
+    </div>
+
+    <!-- ZONA CÁMARA -->
+    <div class="camera-wrap">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas" hidden></canvas>
+      <div class="scan-frame">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div id="scan-status" class="scan-status">Apuntar y escanear</div>
+    </div>
+
+    <!-- BARRA INFERIOR -->
+    <div class="bottom-bar">
+      <button id="btn-ubicacion" class="btn-zona">📍 ZonaA</button>
+      <button id="btn-torch" class="btn-icon-bar">🔦</button>
+      <button id="btn-historial" class="btn-icon-bar">🕒</button>
+    </div>
+
+  </div>
+
+  <!-- PANTALLA HISTORIAL -->
+  <div id="screen-historial" class="screen">
+    <div class="topbar">
+      <button id="btn-back" class="btn-icon">←</button>
+      <span class="app-name">Historial</span>
+      <div class="historial-filtros">
+        <button class="filtro-btn filtro-active" data-filtro="todos">Todos</button>
+        <button class="filtro-btn" data-filtro="Entrada">📥</button>
+        <button class="filtro-btn" data-filtro="Salida">📤</button>
+        <button class="filtro-btn" data-filtro="faltantes">⚠️</button>
+      </div>
+    </div>
+    <div id="lista-historial" class="lista"></div>
+  </div>
+
+  <!-- MODAL UBICACIÓN -->
+  <div id="modal-ubicacion" class="modal hidden">
+    <div class="modal-box">
+      <h3>Seleccioná la Ubicación</h3>
+      <div class="zona-grid" id="zona-grid"></div>
+      <button id="btn-cerrar-modal" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY DUPLICADO -->
+  <div id="overlay-dup" class="overlay-dup hidden">
+    <div class="overlay-dup-box">
+      <div class="overlay-dup-icon">🔴</div>
+      <div class="overlay-dup-title">¡DUPLICADO!</div>
+      <div id="overlay-dup-codigo" class="overlay-dup-codigo"></div>
+      <div class="overlay-dup-sub">Este paquete ya fue registrado</div>
+      <div class="overlay-dup-timer" id="overlay-timer">3</div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

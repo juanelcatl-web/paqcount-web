@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#0A0A14"/>
+  <rect x="156" y="96" width="200" height="240" rx="16" fill="#00E5FF" opacity="0.15"/>
+  <rect x="156" y="96" width="200" height="240" rx="16" fill="none" stroke="#00E5FF" stroke-width="12"/>
+  <line x1="256" y1="96" x2="256" y2="336" stroke="#00E5FF" stroke-width="6" opacity="0.4"/>
+  <rect x="196" y="136" width="60" height="8" rx="4" fill="#00E5FF" opacity="0.6"/>
+  <rect x="196" y="156" width="80" height="8" rx="4" fill="#00E5FF" opacity="0.4"/>
+  <rect x="196" y="176" width="50" height="8" rx="4" fill="#00E5FF" opacity="0.4"/>
+  <polygon points="256,350 316,390 296,460 216,460 196,390" fill="#00E5FF"/>
+  <text x="256" y="445" text-anchor="middle" font-family="Arial" font-weight="900" font-size="52" fill="#0A0A14">PQ</text>
+</svg>

@@ -11,53 +11,73 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      // Detección de plataforma para métricas precisas
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      const platform = isPWA ? 'App_PWA_Instalada' : 'Web_Navegador_PC';
-      
-      gtag('config', 'G-27TMM5ZCE2', {
-        'page_title': document.title,
-        'custom_map': {'dimension1': 'platform_type'}
-      });
-      gtag('event', 'platform_check', {'platform_type': platform});
+      gtag('config', 'G-27TMM5ZCE2');
     </script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        header { background: #2c3e50; color: white; padding: 1rem; text-align: center; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; background-color: #f9f9f9; }
+        header { background: #2c3e50; color: white; padding: 1.5rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .container { max-width: 900px; margin: auto; padding: 20px; }
-        .app-container { background: #f4f4f4; border: 2px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 40px; text-align: center; }
-        article { margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; }
+        
+        /* Estilos de la App */
+        .app-container { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        video { width: 100%; max-width: 400px; border-radius: 8px; background: #000; margin-top: 10px; }
+        .resumen { display: flex; justify-content: space-around; margin: 20px 0; font-weight: bold; background: #eee; padding: 10px; border-radius: 8px; }
+        .btn { padding: 12px 24px; font-size: 1rem; cursor: pointer; border: none; border-radius: 5px; margin: 5px; transition: 0.3s; }
+        .btn-google { background: #4285F4; color: white; }
+        .modo-active { background: #27ae60 !important; color: white; }
+        .modo-salida-active { background: #e74c3c !important; color: white; }
+        #scan-status { font-style: italic; color: #666; margin-top: 5px; }
+
+        /* Estilos de Contenido (AdSense) */
+        article { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; }
         h2 { color: #2980b9; }
-        .legal-links { font-size: 0.8rem; text-align: center; margin-top: 50px; color: #777; }
-        .legal-links a { color: #777; margin: 0 10px; text-decoration: none; }
-        /* Espacio para anuncio de AdSense */
-        .ads-placeholder { min-height: 100px; background: #fafafa; border: 1px dashed #ccc; margin: 20px 0; display: flex; align-items: center; justify-content: center; color: #aaa; }
+        .legal-links { font-size: 0.85rem; text-align: center; margin-top: 50px; padding: 20px; color: #777; border-top: 1px solid #eee; }
+        .legal-links a { color: #2980b9; text-decoration: none; margin: 0 10px; }
+        .ads-placeholder { min-height: 100px; background: #f0f0f0; border: 1px dashed #bbb; margin: 20px 0; display: flex; align-items: center; justify-content: center; color: #888; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>PaqCount</h1>
-    <p>Modo Depósito Inteligente</p>
+    <p>Control de Stock Logístico</p>
 </header>
 
 <div class="container">
-    <div class="ads-placeholder">Espacio para AdSense (Cabecera)</div>
+    <div class="ads-placeholder">Espacio para Publicidad (Banner Superior)</div>
 
     <section class="app-container" id="app-root">
-        <h2>Escáner de Control de Cargas</h2>
-        <p>Utilice la cámara para registrar Entradas, Salidas y Sobrantes.</p>
         
-        <div id="root">
-            <p>Cargando escáner inteligente...</p>
+        <div id="screen-login" class="screen active">
+            <h2>Bienvenido</h2>
+            <p>Inicie sesión para comenzar el control de carga.</p>
+            <button class="btn btn-google" id="btn-google-login">Iniciar sesión con Google</button>
         </div>
+
+        <div id="screen-scanner" class="screen">
+            <div class="resumen">
+                <div>E: <span id="res-entradas">0</span></div>
+                <div>S: <span id="res-salidas">0</span></div>
+                <div>F: <span id="res-faltantes">0</span></div>
+            </div>
+
+            <div>
+                <button id="btn-entrada" class="btn modo-active">ENTRADA</button>
+                <button id="btn-salida" class="btn">SALIDA</button>
+            </div>
+
+            <video id="video" autoplay playsinline></video>
+            <p id="scan-status">Iniciando cámara...</p>
+        </div>
+
     </section>
 
     <article>
         <h2>¿Cómo optimizar la logística de tu depósito con tecnología PWA?</h2>
-        <p>En el mundo del transporte y la distribución, la precisión en la carga es fundamental. Herramientas como <strong>PaqCount</strong> permiten a los operarios gestionar el flujo de mercadería sin necesidad de hardware costoso, utilizando simplemente un dispositivo móvil.</p>
+        <p>En el mundo del transporte y la distribución, la precisión en la carga es fundamental. Herramientas como <strong>PaqCount</strong> permiten a los operarios gestionar el flujo de mercadería sin necesidad de hardware costoso, utilizando simplemente un dispositivo móvil con cámara.</p>
         
         <h3>Beneficios de la digitalización en tiempo real:</h3>
         <ul>
@@ -69,14 +89,17 @@
         <p>Implementar un sistema de <em>"Modo Depósito Inteligente"</em> no solo acelera el despacho, sino que mejora la trazabilidad de cada bulto, garantizando que el cliente reciba lo que corresponde en el tiempo pactado.</p>
     </article>
 
-    <div class="ads-placeholder">Espacio para AdSense (Contenido)</div>
+    <div class="ads-placeholder">Espacio para Publicidad (In-Article)</div>
 
     <footer class="legal-links">
+        <section id="privacy" style="text-align: left; background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee;">
+            <h4 style="margin:0;">Política de Privacidad</h4>
+            <p style="font-size: 0.8rem;">PaqCount utiliza la cámara del dispositivo únicamente para funciones de escaneo logístico de códigos de barras. No almacenamos datos personales sensibles ni imágenes en nuestros servidores. Los datos de escaneo se procesan vía Firebase para control de stock exclusivo del usuario.</p>
+        </section>
         <p>&copy; 2026 PaqCount - Gestión Logística Profesional</p>
         <a href="#privacy">Política de Privacidad</a> | 
-        <a href="#terms">Términos de Servicio</a> | 
-        <a href="mailto:tu-email@ejemplo.com">Contacto</a>
-    </footer >
+        <a href="mailto:tu-email@ejemplo.com">Contacto Soporte</a>
+    </footer>
 </div>
 
 <script type="module" src="./app.js"></script>

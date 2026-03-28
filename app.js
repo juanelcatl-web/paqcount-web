@@ -1,10 +1,12 @@
+// FORZAR ACTUALIZACIÓN DE SERVICE WORKER
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(registrations) {
     for(let registration of registrations) {
-      registration.update(); // Esto obliga a buscar la nueva versión del index.html
+      registration.update();
     }
   });
 }
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -38,13 +40,16 @@ onAuthStateChanged(auth, async (user) => {
     showScreen('scanner');
     actualizarResumen();
     iniciarCamara();
-    gtag('event', 'login', { 'method': 'Google', 'platform': platform });
+    if (typeof gtag === 'function') {
+      gtag('event', 'login', { 'method': 'Google', 'platform': platform });
+    }
   } else {
     showScreen('login');
     detenerCamara();
   }
 });
 
+// LOGIN
 document.getElementById('btn-google-login').addEventListener('click', () => {
   signInWithPopup(auth, new GoogleAuthProvider());
 });
@@ -54,12 +59,9 @@ async function onCodigoDetectado(raw) {
   scanning = true;
   const codigo = raw.trim().toUpperCase();
 
-  // Enviar a Analytics
-  gtag('event', 'package_scan', {
-    'mode': modo,
-    'location': ubicacion,
-    'platform': platform
-  });
+  if (typeof gtag === 'function') {
+    gtag('event', 'package_scan', { 'mode': modo, 'location': ubicacion, 'platform': platform });
+  }
 
   try {
     await addDoc(collection(db, 'scans'), {
@@ -77,6 +79,7 @@ async function onCodigoDetectado(raw) {
 
 async function iniciarCamara() {
   const video = document.getElementById('video');
+  if (!video) return; 
   try {
     const detector = new BarcodeDetector({ formats: ['ean_13', 'code_128', 'qr_code'] });
     videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -93,7 +96,11 @@ async function iniciarCamara() {
       }
     })();
     document.getElementById('scan-status').textContent = 'Listo para escanear';
-  } catch (e) { document.getElementById('scan-status').textContent = 'Error cámara'; }
+  } catch (e) { 
+    if (document.getElementById('scan-status')) {
+        document.getElementById('scan-status').textContent = 'Error cámara o no soportado';
+    }
+  }
 }
 
 function detenerCamara() {
@@ -103,22 +110,38 @@ function detenerCamara() {
 
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
+  const target = document.getElementById('screen-' + name);
+  if (target) target.classList.add('active');
 }
 
 async function actualizarResumen() {
-  const snap = await getDocs(collection(db, 'scans'));
-  let e = 0, s = 0;
-  snap.forEach(doc => {
-    if (doc.data().modo === 'Entrada') e++; else s++;
-  });
-  document.getElementById('res-entradas').textContent = e;
-  document.getElementById('res-salidas').textContent = s;
-  document.getElementById('res-faltantes').textContent = e - s;
+  try {
+    const snap = await getDocs(collection(db, 'scans'));
+    let e = 0, s = 0;
+    snap.forEach(doc => {
+      if (doc.data().modo === 'Entrada') e++; else s++;
+    });
+    document.getElementById('res-entradas').textContent = e;
+    document.getElementById('res-salidas').textContent = s;
+    document.getElementById('res-faltantes').textContent = e - s;
+  } catch (err) { console.error("Error resumen:", err); }
 }
 
 function vibrar(p) { if ('vibrate' in navigator) navigator.vibrate(p); }
 
-// UI Toggles
-document.getElementById('btn-entrada').onclick = () => { modo = 'Entrada'; document.getElementById('btn-entrada').classList.add('modo-active'); document.getElementById('btn-salida').classList.remove('modo-salida-active'); };
-document.getElementById('btn-salida').onclick = () => { modo = 'Salida'; document.getElementById('btn-salida').classList.add('modo-salida-active'); document.getElementById('btn-entrada').classList.remove('modo-active'); };
+// UI Toggles - Manejo de errores si los botones no existen aún
+const btnEntrada = document.getElementById('btn-entrada');
+const btnSalida = document.getElementById('btn-salida');
+
+if (btnEntrada && btnSalida) {
+    btnEntrada.onclick = () => { 
+        modo = 'Entrada'; 
+        btnEntrada.classList.add('modo-active'); 
+        btnSalida.classList.remove('modo-salida-active'); 
+    };
+    btnSalida.onclick = () => { 
+        modo = 'Salida'; 
+        btnSalida.classList.add('modo-salida-active'); 
+        btnEntrada.classList.remove('modo-active'); 
+    };
+}

@@ -4,12 +4,12 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPe
 import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey:            "AIzaSyCgiTXQeics9Opr4HvLcuZ0b3lmBDy3LL0",
-  authDomain:        "paqcount.firebaseapp.com",
-  projectId:         "paqcount",
-  storageBucket:     "paqcount.firebasestorage.app",
-  messagingSenderId: "431677742524",
-  appId:             "1:431677742524:web:885cc9a5814def648e9fb9"
+  apiKey:             "AIzaSyCgiTXQeics9Opr4HvLcuZ0b3lmBDy3LL0",
+  authDomain:         "paqcount.firebaseapp.com",
+  projectId:          "paqcount",
+  storageBucket:      "paqcount.firebasestorage.app",
+  messagingSenderId:  "431677742524",
+  appId:              "1:431677742524:web:885cc9a5814def648e9fb9"
 };
 
 const app  = initializeApp(firebaseConfig);
@@ -26,6 +26,9 @@ let appReady     = false;
 let videoStream  = null;
 let detectLoop   = false;
 let pendingScans = JSON.parse(localStorage.getItem('pending_scans') || '[]');
+
+// Determinar si es PWA o Web para Analytics
+const platform = window.matchMedia('(display-mode: standalone)').matches ? 'PWA' : 'Browser';
 
 // Sonido duplicado
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -69,6 +72,9 @@ onAuthStateChanged(auth, async (user) => {
     await actualizarResumen();
     if (!appReady) { appReady = true; iniciarCamara(); }
     sincronizarPendientes();
+    
+    // Analytics: Login exitoso
+    gtag('event', 'login', { 'method': 'Google', 'platform': platform });
   } else {
     appReady = false; detectLoop = false;
     showScreen('login'); detenerCamara();
@@ -84,7 +90,10 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
     await signInWithPopup(auth, provider);
   } catch (e) {
     btn.textContent = 'Continuar con Google'; btn.disabled = false;
-    if (e.code !== 'auth/popup-closed-by-user') alert('Error: ' + e.message);
+    if (e.code !== 'auth/popup-closed-by-user') {
+        alert('Error: ' + e.message);
+        gtag('event', 'exception', { 'description': e.message, 'fatal': false });
+    }
   }
 });
 
@@ -92,6 +101,8 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
+  // Analytics: Cambio de pantalla
+  gtag('event', 'screen_view', { 'screen_name': name });
 }
 
 document.getElementById('btn-back').addEventListener('click', () => {
@@ -119,6 +130,7 @@ document.getElementById('btn-salida').addEventListener('click', () => {
   document.getElementById('btn-salida').className = 'modo-btn modo-salida-active';
   localStorage.setItem('modo', 'Salida');
 });
+
 // Restaurar modo
 const lastModo = localStorage.getItem('modo');
 if (lastModo === 'Salida') {
@@ -140,6 +152,9 @@ ZONAS.forEach(z => {
     btn.classList.add('selected');
     document.getElementById('modal-ubicacion').classList.add('hidden');
     localStorage.setItem('last_ubicacion', z);
+    
+    // Analytics: Cambio de zona
+    gtag('event', 'select_location', { 'location_id': z });
   });
   zonaGrid.appendChild(btn);
 });
@@ -167,9 +182,7 @@ async function actualizarResumen() {
       else if (d.modo === 'Salida') salidas.add(d.codigo);
     });
 
-    // Faltantes: entraron pero no salieron
     const faltantes = [...entradas].filter(c => !salidas.has(c));
-    // Sobrantes: salieron pero no entraron
     const sobrantes = [...salidas].filter(c => !entradas.has(c));
 
     document.getElementById('res-entradas').textContent  = entradas.size;
@@ -177,11 +190,9 @@ async function actualizarResumen() {
     document.getElementById('res-faltantes').textContent = faltantes.length;
     document.getElementById('res-sobrantes').textContent = sobrantes.length;
 
-    // Guardar para historial
     window._faltantes = faltantes;
     window._sobrantes = sobrantes;
   } catch (e) {
-    // offline: usar pendingScans
     const entradas = new Set(pendingScans.filter(s => s.modo === 'Entrada').map(s => s.codigo));
     const salidas  = new Set(pendingScans.filter(s => s.modo === 'Salida').map(s => s.codigo));
     document.getElementById('res-entradas').textContent  = entradas.size;
@@ -195,6 +206,15 @@ async function actualizarResumen() {
 function mostrarOverlayDuplicado(codigo) {
   sonarDuplicado();
   vibrar([300, 100, 300, 100, 300]);
+  
+  // Analytics: Registro de duplicado
+  gtag('event', 'scan_duplicate', {
+    'event_category': 'error',
+    'event_label': codigo,
+    'location': ubicacion,
+    'mode': modo
+  });
+
   const overlay = document.getElementById('overlay-dup');
   document.getElementById('overlay-dup-codigo').textContent = codigo;
   overlay.classList.remove('hidden');
@@ -244,6 +264,7 @@ async function iniciarCamara() {
   } catch (e) {
     setStatus('Error cámara: ' + e.message, 'err');
     mostrarInputManual();
+    gtag('event', 'camera_error', { 'message': e.message });
   }
 }
 
@@ -290,19 +311,7 @@ function mostrarInputManual() {
     }
   });
   document.getElementById('btn-reintentar-camara').addEventListener('click', async () => {
-    wrap.innerHTML = `
-      <video id="video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
-      <canvas id="canvas" hidden></canvas>
-      <div class="scan-frame">
-        <div class="corner tl"></div><div class="corner tr"></div>
-        <div class="corner bl"></div><div class="corner br"></div>
-        <div class="scan-line"></div>
-      </div>
-      <div id="scan-status" class="scan-status">Iniciando cámara...</div>
-    `;
-    detectLoop = false; appReady = false;
-    await new Promise(r => setTimeout(r, 500));
-    appReady = true; iniciarCamara();
+    location.reload(); // Forma más limpia de reiniciar el estado
   });
 }
 
@@ -330,7 +339,7 @@ async function onCodigoDetectado(raw) {
 
   const codigo = raw.trim().toUpperCase();
 
-  // Verificar duplicado en mismo modo
+  // Verificar duplicado local
   const dupLocal = pendingScans.some(s => s.codigo === codigo && s.modo === modo);
   if (dupLocal) { mostrarOverlayDuplicado(codigo); return; }
 
@@ -359,6 +368,14 @@ async function onCodigoDetectado(raw) {
 
   pendingScans.push(scan);
   localStorage.setItem('pending_scans', JSON.stringify(pendingScans));
+
+  // Analytics: Escaneo exitoso
+  gtag('event', 'package_scan', {
+    'mode': modo,
+    'location': ubicacion,
+    'format': validacion.formato,
+    'platform': platform
+  });
 
   if (navigator.onLine) {
     try {
@@ -400,12 +417,10 @@ async function cargarHistorial(filtro = 'todos') {
     let items = [];
     snap.forEach(doc => items.push(doc.data()));
 
-    // Agregar pendientes
     pendingScans.forEach(s => {
       if (!items.find(i => i.codigo === s.codigo && i.modo === s.modo)) items.unshift(s);
     });
 
-    // Aplicar filtro
     if (filtro === 'Entrada') items = items.filter(s => s.modo === 'Entrada');
     else if (filtro === 'Salida') items = items.filter(s => s.modo === 'Salida');
     else if (filtro === 'faltantes') items = items.filter(s => faltantes.includes(s.codigo));

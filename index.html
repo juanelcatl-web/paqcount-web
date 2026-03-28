@@ -14,7 +14,13 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-27TMM5ZCE2');
+    // Detectar si es PWA instalada o Navegador
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    
+    gtag('config', 'G-27TMM5ZCE2', {
+      'page_title': 'PaqCount_Console',
+      'platform_type': isPWA ? 'App_PWA_Instalada' : 'Web_Navegador_PC'
+    });
   </script>
 </head>
 <body>
@@ -32,21 +38,17 @@
   </div>
 
   <div id="screen-scanner" class="screen">
-
     <div class="topbar">
       <div class="topbar-left">
         <span class="app-name">PaqCount</span>
         <span id="badge-online" class="badge badge-online">● Online</span>
       </div>
       <div class="topbar-right">
-        <span id="counter-hoy" class="counter">0 hoy</span>
         <button id="btn-menu" class="btn-icon">⋮</button>
       </div>
     </div>
 
-    <div id="banner-offline" class="banner-offline hidden">
-      ☁ Sin conexión · Los escaneos se guardan localmente
-    </div>
+    <div id="banner-offline" class="banner-offline hidden">☁ Modo Offline Activo</div>
 
     <div class="modo-toggle">
       <button id="btn-entrada" class="modo-btn modo-active">📥 Entrada</button>
@@ -64,28 +66,20 @@
         <span class="resumen-label">Salidas</span>
       </div>
       <div class="resumen-divider"></div>
-      <div class="resumen-item alerta" id="res-faltantes-wrap">
+      <div class="resumen-item alerta">
         <span class="resumen-num" id="res-faltantes">0</span>
-        <span class="resumen-label">Faltantes</span>
-      </div>
-      <div class="resumen-divider"></div>
-      <div class="resumen-item alerta-verde" id="res-sobrantes-wrap">
-        <span class="resumen-num" id="res-sobrantes">0</span>
-        <span class="resumen-label">Sobrantes</span>
+        <span class="resumen-label">Stock</span>
       </div>
     </div>
 
     <div class="camera-wrap">
       <video id="video" autoplay playsinline muted></video>
-      <canvas id="canvas" hidden></canvas>
       <div class="scan-frame">
-        <div class="corner tl"></div>
-        <div class="corner tr"></div>
-        <div class="corner bl"></div>
-        <div class="corner br"></div>
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
         <div class="scan-line"></div>
       </div>
-      <div id="scan-status" class="scan-status">Apuntar y escanear</div>
+      <div id="scan-status" class="scan-status">Iniciando...</div>
     </div>
 
     <div class="bottom-bar">
@@ -93,19 +87,12 @@
       <button id="btn-torch" class="btn-icon-bar">🔦</button>
       <button id="btn-historial" class="btn-icon-bar">🕒</button>
     </div>
-
   </div>
 
   <div id="screen-historial" class="screen">
     <div class="topbar">
       <button id="btn-back" class="btn-icon">←</button>
       <span class="app-name">Historial</span>
-      <div class="historial-filtros">
-        <button class="filtro-btn filtro-active" data-filtro="todos">Todos</button>
-        <button class="filtro-btn" data-filtro="Entrada">📥</button>
-        <button class="filtro-btn" data-filtro="Salida">📤</button>
-        <button class="filtro-btn" data-filtro="faltantes">⚠️</button>
-      </div>
     </div>
     <div id="lista-historial" class="lista"></div>
   </div>
@@ -114,17 +101,7 @@
     <div class="modal-box">
       <h3>Seleccioná la Ubicación</h3>
       <div class="zona-grid" id="zona-grid"></div>
-      <button id="btn-cerrar-modal" class="btn-secondary">Cancelar</button>
-    </div>
-  </div>
-
-  <div id="overlay-dup" class="overlay-dup hidden">
-    <div class="overlay-dup-box">
-      <div class="overlay-dup-icon">🔴</div>
-      <div class="overlay-dup-title">¡DUPLICADO!</div>
-      <div id="overlay-dup-codigo" class="overlay-dup-codigo"></div>
-      <div class="overlay-dup-sub">Este paquete ya fue registrado</div>
-      <div class="overlay-dup-timer" id="overlay-timer">3</div>
+      <button id="btn-cerrar-modal" class="btn-secondary">Cerrar</button>
     </div>
   </div>
 

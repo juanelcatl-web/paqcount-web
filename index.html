@@ -8,18 +8,17 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5DSEK8QHH7"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-27TMM5ZCE2"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-5DSEK8QHH7');
+
+    gtag('config', 'G-27TMM5ZCE2');
   </script>
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN -->
   <div id="screen-login" class="screen active">
     <div class="login-box">
       <div class="logo">📦</div>
@@ -32,10 +31,8 @@
     </div>
   </div>
 
-  <!-- PANTALLA SCANNER -->
   <div id="screen-scanner" class="screen">
 
-    <!-- TOP BAR -->
     <div class="topbar">
       <div class="topbar-left">
         <span class="app-name">PaqCount</span>
@@ -47,18 +44,15 @@
       </div>
     </div>
 
-    <!-- BANNER OFFLINE -->
     <div id="banner-offline" class="banner-offline hidden">
       ☁ Sin conexión · Los escaneos se guardan localmente
     </div>
 
-    <!-- TOGGLE ENTRADA / SALIDA -->
     <div class="modo-toggle">
       <button id="btn-entrada" class="modo-btn modo-active">📥 Entrada</button>
       <button id="btn-salida" class="modo-btn">📤 Salida</button>
     </div>
 
-    <!-- PANEL RESUMEN -->
     <div class="resumen-bar">
       <div class="resumen-item">
         <span class="resumen-num" id="res-entradas">0</span>
@@ -81,7 +75,6 @@
       </div>
     </div>
 
-    <!-- ZONA CÁMARA -->
     <div class="camera-wrap">
       <video id="video" autoplay playsinline muted></video>
       <canvas id="canvas" hidden></canvas>
@@ -95,7 +88,6 @@
       <div id="scan-status" class="scan-status">Apuntar y escanear</div>
     </div>
 
-    <!-- BARRA INFERIOR -->
     <div class="bottom-bar">
       <button id="btn-ubicacion" class="btn-zona">📍 ZonaA</button>
       <button id="btn-torch" class="btn-icon-bar">🔦</button>
@@ -104,7 +96,6 @@
 
   </div>
 
-  <!-- PANTALLA HISTORIAL -->
   <div id="screen-historial" class="screen">
     <div class="topbar">
       <button id="btn-back" class="btn-icon">←</button>
@@ -119,7 +110,6 @@
     <div id="lista-historial" class="lista"></div>
   </div>
 
-  <!-- MODAL UBICACIÓN -->
   <div id="modal-ubicacion" class="modal hidden">
     <div class="modal-box">
       <h3>Seleccioná la Ubicación</h3>
@@ -128,7 +118,6 @@
     </div>
   </div>
 
-  <!-- OVERLAY DUPLICADO -->
   <div id="overlay-dup" class="overlay-dup hidden">
     <div class="overlay-dup-box">
       <div class="overlay-dup-icon">🔴</div>
